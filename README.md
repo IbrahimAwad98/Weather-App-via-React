@@ -1,5 +1,7 @@
 # Weather App via React
 
+[![CI](https://github.com/IbrahimAwad98/Weather-App-via-React/actions/workflows/ci.yml/badge.svg)](https://github.com/IbrahimAwad98/Weather-App-via-React/actions/workflows/ci.yml)
+
 En modern väderapplikation byggd med React, Next.js och TypeScript.
 
 ## Om projektet
