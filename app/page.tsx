@@ -14,13 +14,22 @@ function getWeatherEmoji(description: string) {
   return "🌡️";
 }
 
+// De fält ur OpenWeatherMap-svaret som appen faktiskt använder
+type WeatherData = {
+  cod: number;
+  name: string;
+  sys: { country: string };
+  weather: { description: string }[];
+  main: { temp: number; humidity: number; feels_like: number };
+  wind: { speed: number };
+};
+
 export default function Home() {
   const [city, setCity] = useState("");
-  const [weather, setWeather] = useState<any>(null);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dark, setDark] = useState(false);
-  const [bgCity, setBgCity] = useState("");
 
   async function fetchWeather() {
     if (!city) return;
@@ -34,14 +43,13 @@ export default function Home() {
     const res = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`
     );
-    const data = await res.json();
+    const data: WeatherData = await res.json();
 
     // API returnerar cod: 200 vid success, allt annat är ett fel
     if (data.cod !== 200) {
       setError("❌ City not found. Try again!");
     } else {
       setWeather(data);
-      setBgCity(data.name);
     }
 
     setLoading(false);
