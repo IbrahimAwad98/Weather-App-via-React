@@ -17,6 +17,7 @@ function getWeatherEmoji(description: string) {
 // De fält ur OpenWeatherMap-svaret som appen faktiskt använder
 type WeatherData = {
   cod: number;
+  message?: string;
   name: string;
   sys: { country: string };
   weather: { description: string }[];
@@ -39,20 +40,23 @@ export default function Home() {
     setError("");
     setWeather(null);
 
-    const key = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
-    const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`
-    );
-    const data: WeatherData = await res.json();
+    try {
+      // Nyckeln ligger på servern, se app/api/weather/route.ts
+      const res = await fetch(`/api/weather?q=${encodeURIComponent(city)}`);
+      const data: WeatherData = await res.json();
 
-    // API returnerar cod: 200 vid success, allt annat är ett fel
-    if (data.cod !== 200) {
-      setError("❌ City not found. Try again!");
-    } else {
-      setWeather(data);
+      // API returnerar cod: 200 vid success, allt annat är ett fel
+      if (data.cod !== 200) {
+        setError(data.message ? `❌ ${data.message}` : "❌ City not found. Try again!");
+      } else {
+        setWeather(data);
+      }
+    } catch {
+      // Utan detta fastnar UI:t på "Loading" för alltid vid nätverksfel
+      setError("❌ Could not reach the weather service. Check your connection.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   // Mörkare overlay i dark mode så kortet syns bättre mot bakgrunden
